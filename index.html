@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+        }
+
+        .section-main {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .gerb {
+            position: relative;
+            z-index: 2;
+            max-width: 50%;
+            max-height: 60vh;
+            object-fit: contain;
+            opacity: 0.7;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .gerb:hover {
+            opacity: 0.9;
+            transform: scale(1.03);
+        }
+
+        .section-buttons {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .title {
+            position: absolute;
+            top: 4%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            max-width: 80%;
+            max-height: 30vh;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .title:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .buttons {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 30px 60px;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            text-align: center;
+            white-space: nowrap;
+            cursor: pointer;
+            background: rgba(74, 45, 35, 0.85);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.1);
+            transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+            background: rgba(94, 60, 45, 0.95);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6), inset 0 2px 6px rgba(255,255,255,0.15);
+        }
+
+        @media (max-width: 768px) {
+
+            .section-main,
+            .section-buttons {
+                height: auto;
+                min-height: 100vh;
+                overflow: visible;
+            }
+
+            .gerb {
+                max-width: 70%;
+                max-height: 35vh;
+                margin-top: 5vh;
+            }
+
+            .section-buttons {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding: 5vh 20px 8vh;
+                gap: 25px;
+            }
+
+            .title {
+                position: static;
+                transform: none;
+                max-width: 90%;
+                max-height: 20vh;
+                margin-bottom: 10px;
+            }
+
+            .title:hover {
+                transform: scale(1.05);
+            }
+
+            .buttons {
+                position: static;
+                transform: none;
+                display: flex;
+                flex-direction: column;
+                gap: 25px;
+                width: 100%;
+                align-items: center;
+            }
+
+            .btn {
+                width: 80%;
+                max-width: 300px;
+                padding: 20px 30px;
+                font-size: 20px;
+                white-space: normal;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="section-main">
+        <img src="Фон.png" alt="Фон" class="bg">
+        <img src="Герб.png" alt="Герб" class="gerb">
+    </div>
+
+    <div class="section-buttons">
+        <img src="Фон.png" alt="Фон" class="bg">
+        <img src="Название.png" alt="Название" class="title">
+
+        <div class="buttons">
+            <a href="https://t.me/ReedGnir" target="_blank" class="btn">Вступить в команду</a>
+            <a href="portfolio.html" class="btn">Портфолио</a>
+            <a href="https://t.me/Regnir" target="_blank" class="btn">Заказать услугу</a>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портфолио</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        .bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .logos-top {
+            position: absolute;
+            top: 3%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            max-width: 70%;
+            max-height: 18vh;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .logos-top:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .zoom-container {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            width: 65%;
+            height: 55vh;
+            overflow: hidden;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .zoom-container:active {
+            cursor: grabbing;
+        }
+
+        .zoom-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+        }
+
+        .back-btn {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            background: #1a3c2e;
+            color: white;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 20px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #2d5a3d;
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+
+            .logos-top {
+                top: 2%;
+                max-width: 85%;
+                max-height: 12vh;
+            }
+
+            .zoom-container {
+                top: 45%;
+                width: 90%;
+                height: 50vh;
+            }
+
+            .back-btn {
+                bottom: 3%;
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <img src="Фон.png" alt="Фон" class="bg">
+        <img src="Портфолио логотипы.png" alt="Портфолио логотипы" class="logos-top">
+
+        <div class="zoom-container" id="zoomContainer">
+            <img src="Логотипы.png" alt="Логотипы" class="zoom-img" id="zoomImg">
+        </div>
+
+        <a href="index.html" class="back-btn">← Назад</a>
+    </div>
+
+    <script>
+        const container = document.getElementById('zoomContainer');
+        const img = document.getElementById('zoomImg');
+
+        let scale = 1;
+        let posX = 0;
+        let posY = 0;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let lastTouchDist = 0;
+
+        function updateTransform() {
+            img.style.transform = `translate(calc(-50% + ${posX}px), calc(-50% + ${posY}px)) scale(${scale})`;
+        }
+
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+
+            const rect = container.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left - rect.width / 2;
+            const mouseY = e.clientY - rect.top - rect.height / 2;
+
+            const delta = e.deltaY < 0 ? 1.15 : 0.87;
+            const newScale = Math.min(Math.max(scale * delta, 0.5), 8);
+
+            const scaleChange = newScale / scale;
+
+            posX -= mouseX * (scaleChange - 1);
+            posY -= mouseY * (scaleChange - 1);
+
+            scale = newScale;
+            updateTransform();
+        }, { passive: false });
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - posX;
+            startY = e.clientY - posY;
+            img.style.transition = 'none';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            posX = e.clientX - startX;
+            posY = e.clientY - startY;
+            updateTransform();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            img.style.transition = 'transform 0.1s ease-out';
+        });
+
+        container.addEventListener('dblclick', () => {
+            scale = 1;
+            posX = 0;
+            posY = 0;
+            updateTransform();
+        });
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - posX;
+                startY = e.touches[0].clientY - posY;
+                img.style.transition = 'none';
+            } else if (e.touches.length === 2) {
+                lastTouchDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        }, { passive: false });
+
+        container.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+
+            if (e.touches.length === 1 && isDragging) {
+                posX = e.touches[0].clientX - startX;
+                posY = e.touches[0].clientY - startY;
+                updateTransform();
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const delta = dist / lastTouchDist;
+                const newScale = Math.min(Math.max(scale * delta, 0.5), 8);
+                scale = newScale;
+                lastTouchDist = dist;
+                updateTransform();
+            }
+        }, { passive: false });
+
+        container.addEventListener('touchend', () => {
+            isDragging = false;
+            img.style.transition = 'transform 0.1s ease-out';
+        });
+    </script>
+
+</body>
+</html>
