@@ -1,0 +1,472 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вступить в команду — Теневой Контур</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text: #f0e6d8;
+            --shadow: rgba(0, 0, 0, 0.55);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Manrope", system-ui, sans-serif;
+            background: #000;
+            color: var(--text);
+            overflow-x: hidden;
+            cursor: crosshair;
+            min-height: 100vh;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            pointer-events: none;
+            opacity: 0.045;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 9001;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.12) 2px,
+                rgba(0, 0, 0, 0.12) 4px
+            );
+            opacity: 0.35;
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 9002;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            background: rgba(20, 10, 5, 0.75);
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 5;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+        }
+
+        .header {
+            font-family: "Cinzel", serif;
+            font-weight: 600;
+            font-size: clamp(24px, 5vw, 40px);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-align: center;
+            padding: 18px 40px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.98), rgba(45, 28, 22, 1));
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            margin: 0 auto 16px;
+            width: fit-content;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 15px;
+            color: #d4c4b0;
+            margin-bottom: 40px;
+            letter-spacing: 0.03em;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+        }
+
+        .section {
+            margin-bottom: 36px;
+        }
+
+        .section-title {
+            font-family: "Cinzel", serif;
+            font-size: 18px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            padding-left: 12px;
+            border-left: 3px solid rgba(180, 130, 95, 0.9);
+            color: #f0e6d8;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+        }
+
+        .roles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .role {
+            background: rgba(30, 18, 12, 0.92);
+            border: 1px solid rgba(140, 95, 70, 0.35);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .role:hover {
+            transform: translateY(-4px);
+            background: rgba(50, 30, 22, 0.98);
+            border-color: rgba(180, 130, 95, 0.55);
+            box-shadow: 0 14px 32px rgba(0,0,0,0.65);
+        }
+
+        .role-name {
+            font-family: "Cinzel", serif;
+            font-size: 15px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #e8d9c8;
+            margin-bottom: 8px;
+        }
+
+        .role-desc {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #c4b5a0;
+        }
+
+        .list {
+            background: rgba(30, 18, 12, 0.92);
+            border: 1px solid rgba(140, 95, 70, 0.35);
+            border-radius: 12px;
+            padding: 20px 26px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: #f0e6d8;
+            border-bottom: 1px solid rgba(140, 95, 70, 0.15);
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item::before {
+            content: "▸";
+            color: #d4a574;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: rgba(30, 18, 12, 0.92);
+            border: 1px solid rgba(140, 95, 70, 0.35);
+            border-radius: 12px;
+            padding: 18px 22px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateX(6px);
+            border-color: rgba(180, 130, 95, 0.55);
+        }
+
+        .step-num {
+            font-family: "Cinzel", serif;
+            font-size: 26px;
+            font-weight: 600;
+            color: #d4a574;
+            min-width: 42px;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(212, 165, 116, 0.4);
+        }
+
+        .step-text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #f0e6d8;
+        }
+
+        .final-quote {
+            text-align: center;
+            font-family: "Cinzel", serif;
+            font-size: clamp(16px, 2.4vw, 20px);
+            letter-spacing: 0.08em;
+            line-height: 1.7;
+            color: #e8d9c8;
+            padding: 30px 30px;
+            margin: 40px auto 0;
+            max-width: 700px;
+            border-top: 1px solid rgba(140, 95, 70, 0.4);
+            border-bottom: 1px solid rgba(140, 95, 70, 0.4);
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 20px 48px;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 14px;
+            text-align: center;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.98), rgba(45, 28, 22, 1));
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 220px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            background: linear-gradient(145deg, rgba(94, 60, 45, 1), rgba(60, 38, 28, 1));
+            box-shadow: 0 14px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.12);
+            border-color: rgba(180, 130, 95, 0.55);
+        }
+
+        .back-btn {
+            display: block;
+            width: fit-content;
+            margin: 36px auto 0;
+            padding: 14px 36px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.98), rgba(45, 28, 22, 1));
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px) scale(1.04);
+            background: linear-gradient(145deg, rgba(94, 60, 45, 1), rgba(60, 38, 28, 1));
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 18px;
+            left: 22px;
+            z-index: 9100;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: rgba(120, 90, 75, 0.7);
+            pointer-events: none;
+        }
+
+        @media (max-width: 700px) {
+            .content {
+                padding: 24px 14px 100px;
+            }
+
+            .header {
+                font-size: 20px;
+                padding: 14px 24px;
+                letter-spacing: 0.1em;
+            }
+
+            .section-title {
+                font-size: 15px;
+            }
+
+            .roles {
+                grid-template-columns: 1fr;
+            }
+
+            .step {
+                padding: 14px 16px;
+                gap: 14px;
+            }
+
+            .step-num {
+                font-size: 22px;
+                min-width: 32px;
+            }
+
+            .step-text {
+                font-size: 14px;
+            }
+
+            .list-item {
+                font-size: 13.5px;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 320px;
+                padding: 18px 28px;
+                font-size: 16px;
+            }
+
+            .final-quote {
+                font-size: 15px;
+                padding: 24px 18px;
+            }
+
+            .signature {
+                bottom: 12px;
+                left: 14px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <img src="Фон.png" alt="" class="bg">
+    <div class="overlay"></div>
+    <div class="noise"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <div class="content">
+        <div class="header">Вступить в команду</div>
+        <div class="subtitle">Набор в закрытое оперативное соединение</div>
+
+        <div class="section">
+            <div class="section-title">Кто нам нужен</div>
+            <div class="roles">
+                <div class="role">
+                    <div class="role-name">Дизайнер</div>
+                    <div class="role-desc">Логотипы, брендинг, полиграфия. Портфолио обязательно.</div>
+                </div>
+                <div class="role">
+                    <div class="role-name">Копирайтер</div>
+                    <div class="role-desc">Тексты для сайтов, презентаций, соцсетей. Стиль и смысл.</div>
+                </div>
+                <div class="role">
+                    <div class="role-name">Таргетолог</div>
+                    <div class="role-desc">Реклама, воронки, аналитика. Опыт от полугода.</div>
+                </div>
+                <div class="role">
+                    <div class="role-name">Разработчик</div>
+                    <div class="role-desc">Сайты, лендинги, интеграции. HTML, CSS, JS.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Что предлагаем</div>
+            <div class="list">
+                <div class="list-item">Оплата за каждый проект без задержек</div>
+                <div class="list-item">Свободный график — работаешь когда удобно</div>
+                <div class="list-item">Доступ к закрытым заказам и клиентам</div>
+                <div class="list-item">Анонимность и связь только через Координатора</div>
+                <div class="list-item">Чёткие задачи без лишней бюрократии</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Что требуем</div>
+            <div class="list">
+                <div class="list-item">Портфолио — без него не рассматриваем</div>
+                <div class="list-item">Соблюдение сроков и договорённостей</div>
+                <div class="list-item">Конфиденциальность проектов и клиентов</div>
+                <div class="list-item">Связь через Координатора, без прямых контактов с заказчиком</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Как вступить</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <div class="step-text">Написать Координатору в Telegram</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <div class="step-text">Отправить портфолио и коротко о себе</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <div class="step-text">Пройти короткое собеседование</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">04</div>
+                    <div class="step-text">Получить тестовое задание</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">05</div>
+                    <div class="step-text">Вступить в соединение</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="final-quote">
+            Мы не отвечаем всем.<br>
+            Мы отвечаем тем, кто нам нужен.
+        </div>
+
+        <div class="buttons">
+            <a href="https://t.me/ReedGnir" target="_blank" class="btn">Написать Координатору</a>
+        </div>
+
+        <a href="index.html" class="back-btn">← Назад</a>
+    </div>
+
+    <div class="signature">ReedGnir</div>
+
+</body>
+</html>

@@ -1,0 +1,355 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портфолио — Теневой Контур</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: "Manrope", system-ui, sans-serif;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: crosshair;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            pointer-events: none;
+            opacity: 0.045;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 9001;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.12) 2px,
+                rgba(0, 0, 0, 0.12) 4px
+            );
+            opacity: 0.35;
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 9002;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .page {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 3vh 20px 6vh;
+        }
+
+        .bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .title {
+            position: relative;
+            z-index: 3;
+            font-family: "Cinzel", serif;
+            font-weight: 600;
+            font-size: clamp(20px, 3vw, 34px);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #f0e6d8;
+            text-align: center;
+            padding: 14px 40px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.92), rgba(55, 34, 26, 0.95));
+            border: 1px solid rgba(140, 95, 70, 0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+            margin-bottom: 3vh;
+            flex-shrink: 0;
+        }
+
+        .zoom-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1400px;
+            flex: 1;
+            overflow: hidden;
+            cursor: grab;
+            touch-action: none;
+            border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.2);
+        }
+
+        .zoom-container:active {
+            cursor: grabbing;
+        }
+
+        .zoom-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            transform: translate(-50%, -50%);
+            transform-origin: center center;
+            padding: 20px;
+            transition: transform 0.1s ease-out;
+        }
+
+        .zoom-content img {
+            width: 320px;
+            height: 320px;
+            object-fit: contain;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            position: relative;
+            z-index: 3;
+            margin-top: 4vh;
+            font-family: "Manrope", sans-serif;
+            font-weight: 600;
+            font-size: 17px;
+            letter-spacing: 0.04em;
+            color: #f0e6d8;
+            text-decoration: none;
+            padding: 16px 42px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.92), rgba(55, 34, 26, 0.95));
+            border: 1px solid rgba(140, 95, 70, 0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: linear-gradient(145deg, rgba(94, 60, 45, 0.98), rgba(70, 44, 34, 0.98));
+            box-shadow: 0 14px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
+            border-color: rgba(160, 110, 80, 0.45);
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 18px;
+            left: 22px;
+            z-index: 9100;
+            font-family: "Manrope", sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: rgba(80, 55, 45, 0.55);
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                padding: 3vh 12px 6vh;
+            }
+
+            .title {
+                font-size: 20px;
+                padding: 12px 28px;
+                letter-spacing: 0.1em;
+                margin-bottom: 2.5vh;
+            }
+
+            .zoom-content {
+                gap: 25px;
+                padding: 15px;
+            }
+
+            .zoom-content img {
+                width: 220px;
+                height: 220px;
+            }
+
+            .back-btn {
+                padding: 14px 32px;
+                font-size: 15px;
+                margin-top: 3vh;
+            }
+
+            .signature {
+                bottom: 12px;
+                left: 14px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .zoom-content img {
+                width: 170px;
+                height: 170px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <div class="page">
+        <img src="Фон.png" alt="Фон" class="bg">
+        <h1 class="title">Логотипы</h1>
+
+        <div class="zoom-container" id="zoomContainer">
+            <div class="zoom-content" id="zoomContent">
+                <img src="Дизайнер.png" alt="">
+                <img src="Кафе.png" alt="">
+                <img src="Строительство.png" alt="">
+                <img src="Контур-Логистик.png" alt="">
+                <img src="Похоронное агентство.png" alt="">
+                <img src="Охранная компания.png" alt="">
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Назад</a>
+    </div>
+
+    <div class="signature">ReedGnir</div>
+
+    <script>
+        const container = document.getElementById('zoomContainer');
+        const content = document.getElementById('zoomContent');
+
+        let scale = 1;
+        let posX = 0;
+        let posY = 0;
+        let isDragging = false;
+        let startX = 0, startY = 0;
+        let lastTouchDist = 0;
+
+        function updateTransform() {
+            content.style.transform = `translate(calc(-50% + ${posX}px), calc(-50% + ${posY}px)) scale(${scale})`;
+        }
+
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+
+            const rect = container.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left - rect.width / 2;
+            const mouseY = e.clientY - rect.top - rect.height / 2;
+
+            const delta = e.deltaY < 0 ? 1.15 : 0.87;
+            const newScale = Math.min(Math.max(scale * delta, 0.3), 5);
+
+            const scaleChange = newScale / scale;
+
+            posX -= mouseX * (scaleChange - 1);
+            posY -= mouseY * (scaleChange - 1);
+
+            scale = newScale;
+            updateTransform();
+        }, { passive: false });
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - posX;
+            startY = e.clientY - posY;
+            content.style.transition = 'none';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            posX = e.clientX - startX;
+            posY = e.clientY - startY;
+            updateTransform();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            content.style.transition = 'transform 0.1s ease-out';
+        });
+
+        container.addEventListener('dblclick', () => {
+            scale = 1;
+            posX = 0;
+            posY = 0;
+            updateTransform();
+        });
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - posX;
+                startY = e.touches[0].clientY - posY;
+                content.style.transition = 'none';
+            } else if (e.touches.length === 2) {
+                lastTouchDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        }, { passive: false });
+
+        container.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+
+            if (e.touches.length === 1 && isDragging) {
+                posX = e.touches[0].clientX - startX;
+                posY = e.touches[0].clientY - startY;
+                updateTransform();
+            } else if (e.touches.length === 2) {
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const delta = dist / lastTouchDist;
+                const newScale = Math.min(Math.max(scale * delta, 0.3), 5);
+                scale = newScale;
+                lastTouchDist = dist;
+                updateTransform();
+            }
+        }, { passive: false });
+
+        container.addEventListener('touchend', () => {
+            isDragging = false;
+            content.style.transition = 'transform 0.1s ease-out';
+        });
+    </script>
+
+</body>
+</html>
