@@ -1,0 +1,367 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Логотипы — Портфолио</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            width: 100vw;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: "Manrope", system-ui, sans-serif;
+            background: #000;
+            cursor: crosshair;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            pointer-events: none;
+            opacity: 0.045;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 9001;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.12) 2px,
+                rgba(0, 0, 0, 0.12) 4px
+            );
+            opacity: 0.35;
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 9002;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            background: rgba(20, 10, 5, 0.7);
+            pointer-events: none;
+        }
+
+        .page {
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4vh 20px 12vh;
+        }
+
+        .title {
+            font-family: "Cinzel", serif;
+            font-weight: 600;
+            font-size: clamp(22px, 3.5vw, 36px);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #f0e6d8;
+            text-align: center;
+            padding: 16px 44px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.98), rgba(45, 28, 22, 1));
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            margin-bottom: 4vh;
+            flex-shrink: 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1300px;
+            padding: 20px;
+        }
+
+        .card {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 18, 12, 0.6);
+            border: 1px solid rgba(140, 95, 70, 0.3);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            cursor: zoom-in;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-6px) scale(1.02);
+            background: rgba(50, 30, 22, 0.85);
+            border-color: rgba(180, 130, 95, 0.55);
+            box-shadow: 0 16px 36px rgba(0,0,0,0.7);
+        }
+
+        .card img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            -webkit-user-drag: none;
+            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+        }
+
+        .loader, .empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-family: "Cinzel", serif;
+            font-size: 18px;
+            letter-spacing: 0.12em;
+            color: #d4c4b0;
+            padding: 60px 20px;
+            opacity: 0.8;
+        }
+
+        .empty {
+            font-family: "Manrope", sans-serif;
+            font-size: 16px;
+            letter-spacing: 0.04em;
+            line-height: 1.6;
+        }
+
+        .back-btn {
+            position: relative;
+            z-index: 3;
+            margin-top: 5vh;
+            font-family: "Manrope", sans-serif;
+            font-weight: 600;
+            font-size: 17px;
+            letter-spacing: 0.04em;
+            color: #f0e6d8;
+            text-decoration: none;
+            padding: 16px 42px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.98), rgba(45, 28, 22, 1));
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: linear-gradient(145deg, rgba(94, 60, 45, 1), rgba(60, 38, 28, 1));
+            box-shadow: 0 14px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.12);
+            border-color: rgba(180, 130, 95, 0.55);
+        }
+
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 9800;
+            background: rgba(0, 0, 0, 0.92);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            cursor: zoom-out;
+            backdrop-filter: blur(6px);
+        }
+
+        .lightbox.show {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 60px rgba(0,0,0,0.8));
+            animation: zoomIn 0.3s ease;
+        }
+
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 18px;
+            left: 22px;
+            z-index: 9100;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: rgba(120, 90, 75, 0.7);
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .page {
+                padding: 3vh 12px 12vh;
+            }
+
+            .title {
+                font-size: 20px;
+                padding: 12px 28px;
+                letter-spacing: 0.1em;
+                margin-bottom: 3vh;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 16px;
+                padding: 10px;
+            }
+
+            .card {
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .back-btn {
+                padding: 14px 32px;
+                font-size: 15px;
+                margin-top: 4vh;
+            }
+
+            .signature {
+                bottom: 12px;
+                left: 14px;
+                font-size: 11px;
+            }
+
+            .lightbox {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <img src="Фон.png" alt="Фон" class="bg">
+    <div class="overlay"></div>
+    <div class="noise"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <div class="page">
+        <h1 class="title">Логотипы</h1>
+
+        <div class="gallery" id="gallery">
+            <div class="loader">Загрузка архива…</div>
+        </div>
+
+        <a href="portfolio.html" class="back-btn">← Назад</a>
+    </div>
+
+    <div class="signature">ReedGnir</div>
+
+    <div class="lightbox" id="lightbox">
+        <img src="" alt="" id="lightboxImg">
+    </div>
+
+    <script>
+        // ===== НАСТРОЙКИ =====
+        const USERNAME = 'RTVSW';
+        const REPO = 'RTV1';
+        const FOLDER = 'logos';
+        // =====================
+
+        const gallery = document.getElementById('gallery');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+
+        async function loadGallery() {
+            try {
+                const api = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FOLDER}`;
+                const res = await fetch(api);
+
+                if (!res.ok) throw new Error('Ошибка загрузки');
+
+                const files = await res.json();
+
+                const images = files.filter(f =>
+                    f.type === 'file' && /\.(png|jpg|jpeg|webp|gif|svg)$/i.test(f.name)
+                );
+
+                gallery.innerHTML = '';
+
+                if (images.length === 0) {
+                    gallery.innerHTML = '<div class="empty">В папке "' + FOLDER + '" пока нет изображений.</div>';
+                    return;
+                }
+
+                images.forEach(file => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    const img = document.createElement('img');
+                    img.src = file.download_url;
+                    img.alt = '';
+                    img.loading = 'lazy';
+
+                    card.appendChild(img);
+
+                    card.addEventListener('click', () => {
+                        lightboxImg.src = file.download_url;
+                        lightbox.classList.add('show');
+                    });
+
+                    gallery.appendChild(card);
+                });
+            } catch (err) {
+                console.error(err);
+                gallery.innerHTML = '<div class="empty">Ошибка загрузки. Проверьте настройки репозитория.</div>';
+            }
+        }
+
+        lightbox.addEventListener('click', () => {
+            lightbox.classList.remove('show');
+            lightboxImg.src = '';
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                lightbox.classList.remove('show');
+                lightboxImg.src = '';
+            }
+        });
+
+        loadGallery();
+    </script>
+</body>
+</html>
