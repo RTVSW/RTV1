@@ -1,0 +1,738 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прайс-лист — Теневой Контур</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text: #f0e6d8;
+            --shadow: rgba(0, 0, 0, 0.55);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: "Manrope", system-ui, sans-serif;
+            background: #000;
+            color: var(--text);
+            cursor: crosshair;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            z-index: 9000;
+            pointer-events: none;
+            opacity: 0.045;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 9001;
+            pointer-events: none;
+            opacity: 0.3;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.12) 2px,
+                rgba(0, 0, 0, 0.12) 4px
+            );
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            z-index: 9002;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.85) 100%);
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            background: rgba(20, 10, 5, 0.82);
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 5;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px 120px;
+        }
+
+        .header {
+            font-family: "Cinzel", serif;
+            font-weight: 600;
+            font-size: clamp(24px, 5vw, 44px);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text);
+            text-align: center;
+            padding: 18px 40px;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.98), rgba(45, 28, 22, 1));
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            margin: 0 auto 16px;
+            width: fit-content;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 15px;
+            color: #d4c4b0;
+            margin-bottom: 50px;
+            letter-spacing: 0.03em;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-family: "Cinzel", serif;
+            font-size: 20px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            padding-left: 14px;
+            border-left: 3px solid rgba(180, 130, 95, 0.9);
+            color: #f0e6d8;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(30, 18, 12, 0.92);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(140, 95, 70, 0.35);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        }
+
+        .table th {
+            background: rgba(50, 30, 22, 1);
+            padding: 12px 14px;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-align: left;
+            color: #e8d9c8;
+            font-weight: 600;
+        }
+
+        .table td {
+            padding: 14px;
+            font-size: 14px;
+            border-top: 1px solid rgba(140, 95, 70, 0.2);
+            vertical-align: top;
+            line-height: 1.5;
+            color: #f0e6d8;
+        }
+
+        .table tr:hover td {
+            background: rgba(70, 45, 35, 0.4);
+        }
+
+        .price {
+            color: #d4a574;
+            font-weight: 600;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .term {
+            color: #c4b5a0;
+            white-space: nowrap;
+        }
+
+        .table th:last-child,
+        .table th:nth-last-child(2) {
+            text-align: right;
+        }
+
+        .note {
+            margin-top: 32px;
+            padding: 18px 22px;
+            background: rgba(30, 18, 12, 0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(140, 95, 70, 0.3);
+            font-size: 13px;
+            line-height: 1.7;
+            color: #e0d0bc;
+        }
+
+        .note strong {
+            color: #d4a574;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 44px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 18px 40px;
+            font-family: "Manrope", sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 14px;
+            text-align: center;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.98), rgba(45, 28, 22, 1));
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            background: linear-gradient(145deg, rgba(94, 60, 45, 1), rgba(60, 38, 28, 1));
+            box-shadow: 0 14px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.12);
+            border-color: rgba(180, 130, 95, 0.55);
+        }
+
+        .max-box {
+            display: none;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .max-box.show {
+            display: block;
+        }
+
+        .max-number {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            color: #f0e6d8;
+            margin-bottom: 10px;
+        }
+
+        .copy-btn {
+            display: inline-block;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            background: rgba(74, 45, 35, 0.9);
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(94, 60, 45, 1);
+        }
+
+        .copied {
+            display: none;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #a8c4a0;
+        }
+
+        .copied.show {
+            display: block;
+        }
+
+        .back-btn {
+            display: block;
+            width: fit-content;
+            margin: 36px auto 0;
+            padding: 14px 36px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(74, 45, 35, 0.98), rgba(45, 28, 22, 1));
+            border: 1px solid rgba(140, 95, 70, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px) scale(1.04);
+            background: linear-gradient(145deg, rgba(94, 60, 45, 1), rgba(60, 38, 28, 1));
+        }
+
+        .signature {
+            position: fixed;
+            bottom: 18px;
+            left: 22px;
+            z-index: 9100;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: rgba(120, 90, 75, 0.7);
+            pointer-events: none;
+        }
+
+        /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
+        @media (max-width: 768px) {
+            .content {
+                padding: 24px 12px 100px;
+            }
+
+            .header {
+                font-size: 22px;
+                padding: 14px 26px;
+                letter-spacing: 0.1em;
+            }
+
+            .subtitle {
+                font-size: 13px;
+                margin-bottom: 30px;
+            }
+
+            .section {
+                margin-bottom: 30px;
+            }
+
+            .section-title {
+                font-size: 16px;
+                margin-bottom: 14px;
+            }
+
+            .table th,
+            .table td {
+                padding: 10px 10px;
+                font-size: 13px;
+            }
+
+            .table th:nth-child(3),
+            .table td:nth-child(3) {
+                display: none;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 340px;
+                padding: 16px 28px;
+                font-size: 15px;
+                min-width: auto;
+            }
+
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 14px;
+            }
+
+            .signature {
+                bottom: 12px;
+                left: 14px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header {
+                font-size: 18px;
+                padding: 12px 20px;
+            }
+
+            .table th,
+            .table td {
+                padding: 9px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <img src="Фон.png" alt="" class="bg">
+    <div class="overlay"></div>
+    <div class="noise"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <div class="content">
+        <div class="header">Прайс-лист</div>
+        <div class="subtitle">Профессиональная разработка визуальных решений</div>
+
+        <!-- ЛОГОТИПЫ И ФИРМЕННЫЙ СТИЛЬ -->
+        <div class="section">
+            <div class="section-title">Логотипы и фирменный стиль</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Услуга</th>
+                        <th>Что входит</th>
+                        <th>Срок</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Логотип</td>
+                        <td>1–3 концепции на выбор, 2 круга правок, финальные файлы в PNG, JPG, SVG, PDF</td>
+                        <td class="term">2–5 дней</td>
+                        <td class="price">1 500 – 7 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Брендбук</td>
+                        <td>Разделы: логотип, цвета, шрифты, паттерны, примеры применения</td>
+                        <td class="term">2–4 недели</td>
+                        <td class="price">15 000 – 60 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Фирменные цвета и шрифты</td>
+                        <td>Подбор палитры (3–5 цветов) и шрифтов (2–3), примеры применения</td>
+                        <td class="term">3–5 дней</td>
+                        <td class="price">3 000 – 7 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Гайдлайн</td>
+                        <td>Правила использования, примеры «можно / нельзя», оформление</td>
+                        <td class="term">5–7 дней</td>
+                        <td class="price">5 000 – 12 000 ₽</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ПОЛИГРАФИЯ -->
+        <div class="section">
+            <div class="section-title">Полиграфия</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Услуга</th>
+                        <th>Что входит</th>
+                        <th>Срок</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Визитки</td>
+                        <td>Односторонние или двусторонние, 1 макет</td>
+                        <td class="term">2 дня</td>
+                        <td class="price">500 – 2 500 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Листовки, флаеры</td>
+                        <td>Формат А5 или А6, односторонние или двусторонние</td>
+                        <td class="term">2 дня</td>
+                        <td class="price">1 000 – 3 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Буклеты</td>
+                        <td>Формат А4, 2–4 страницы</td>
+                        <td class="term">2–3 дня</td>
+                        <td class="price">2 000 – 6 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Брошюры, каталоги</td>
+                        <td>От 8 до 16 страниц, вёрстка, фото и иллюстрации</td>
+                        <td class="term">5–7 дней</td>
+                        <td class="price">5 000 – 15 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Плакаты, постеры</td>
+                        <td>Форматы А3, А2, А1</td>
+                        <td class="term">3–5 дней</td>
+                        <td class="price">1 500 – 5 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Меню для кафе и ресторанов</td>
+                        <td>От 2 до 6 страниц, позиции, фото</td>
+                        <td class="term">5 дней</td>
+                        <td class="price">3 000 – 8 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Этикетки</td>
+                        <td>Размер и количество вариантов на выбор</td>
+                        <td class="term">2–3 дня</td>
+                        <td class="price">1 500 – 4 000 ₽</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- НАРУЖНАЯ РЕКЛАМА -->
+        <div class="section">
+            <div class="section-title">Наружная реклама</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Услуга</th>
+                        <th>Что входит</th>
+                        <th>Срок</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Баннеры</td>
+                        <td>Размер и макет на выбор</td>
+                        <td class="term">2–3 дня</td>
+                        <td class="price">2 000 – 6 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Билборды</td>
+                        <td>Большой формат, разрешение для печати</td>
+                        <td class="term">3–5 дней</td>
+                        <td class="price">4 000 – 10 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Вывески</td>
+                        <td>Световые и несветовые, макет для производства</td>
+                        <td class="term">2–3 дня</td>
+                        <td class="price">3 000 – 8 000 ₽</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ПРЕЗЕНТАЦИИ -->
+        <div class="section">
+            <div class="section-title">Презентации</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Услуга</th>
+                        <th>Что входит</th>
+                        <th>Срок</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Бизнес-презентация</td>
+                        <td>10–20 слайдов, инфографика, схемы, графики</td>
+                        <td class="term">2–4 дня</td>
+                        <td class="price">9 000 – 26 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Инвесторская презентация</td>
+                        <td>Финансы, рынок, продукт, графики и схемы</td>
+                        <td class="term">5–7 дней</td>
+                        <td class="price">15 000 – 40 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Учебная презентация</td>
+                        <td>Слайды с иллюстрациями и текстом</td>
+                        <td class="term">2–3 дня</td>
+                        <td class="price">2 000 – 6 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Редизайн презентации</td>
+                        <td>Переработка существующей презентации</td>
+                        <td class="term">1–2 дня</td>
+                        <td class="price">1 500 – 5 000 ₽</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- САЙТЫ -->
+        <div class="section">
+            <div class="section-title">Сайты</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Услуга</th>
+                        <th>Что входит</th>
+                        <th>Срок</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Лендинг</td>
+                        <td>5–10 блоков, уникальный дизайн, адаптация под телефон, анимации, формы</td>
+                        <td class="term">5–10 дней</td>
+                        <td class="price">15 000 – 60 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Многостраничный сайт</td>
+                        <td>5–20 страниц, уникальный дизайн, навигация, формы</td>
+                        <td class="term">10–20 дней</td>
+                        <td class="price">30 000 – 120 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Портфолио</td>
+                        <td>Галереи, лайтбоксы, адаптация, анимации</td>
+                        <td class="term">5–10 дней</td>
+                        <td class="price">15 000 – 50 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Сайт-визитка</td>
+                        <td>1–5 страниц, дизайн, адаптация, формы</td>
+                        <td class="term">3–5 дней</td>
+                        <td class="price">10 000 – 35 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Редизайн сайта</td>
+                        <td>Переработка существующего сайта</td>
+                        <td class="term">5–10 дней</td>
+                        <td class="price">15 000 – 50 000 ₽</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ОБЛОЖКИ ДЛЯ ВИДЕО -->
+        <div class="section">
+            <div class="section-title">Обложки для видео</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Услуга</th>
+                        <th>Что входит</th>
+                        <th>Срок</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Обложка</td>
+                        <td>Дизайн под нужный размер, текст и графика</td>
+                        <td class="term">1–2 дня</td>
+                        <td class="price">500 – 2 000 ₽</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ИЛЛЮСТРАЦИИ -->
+        <div class="section">
+            <div class="section-title">Иллюстрации</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Услуга</th>
+                        <th>Что входит</th>
+                        <th>Срок</th>
+                        <th>Цена</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Векторные иллюстрации</td>
+                        <td>Сложность и количество элементов на выбор</td>
+                        <td class="term">2–5 дней</td>
+                        <td class="price">1 500 – 6 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Растровые иллюстрации</td>
+                        <td>Детализация, размер</td>
+                        <td class="term">3–7 дней</td>
+                        <td class="price">2 000 – 8 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Иконки</td>
+                        <td>Линейные или с заливкой, комплект</td>
+                        <td class="term">2–4 дня</td>
+                        <td class="price">500 – 3 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Персонажи</td>
+                        <td>Детализация, количество поз и ракурсов</td>
+                        <td class="term">5–10 дней</td>
+                        <td class="price">3 000 – 10 000 ₽</td>
+                    </tr>
+                    <tr>
+                        <td>Арт для игр</td>
+                        <td>Размер, детализация, количество ассетов</td>
+                        <td class="term">5–14 дней</td>
+                        <td class="price">5 000 – 20 000 ₽</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="note">
+            <strong>* Дополнительные факторы:</strong><br>
+            • Срочность — цена +20–50%<br>
+            • Правки сверх лимита — доплата<br>
+            • Готовые исходники от клиента — скидка<br>
+            • Коммерческое использование — обсуждается отдельно<br><br>
+            Конечная стоимость и сроки зависят от сложности ТЗ и объёма материалов. Для точного расчёта свяжитесь напрямую.
+        </div>
+
+        <div class="buttons">
+            <a href="https://t.me/Regnir" target="_blank" class="btn">Telegram</a>
+            <div>
+                <button class="btn" id="maxBtn">Max</button>
+                <div class="max-box" id="maxBox">
+                    <div class="max-number">+7 900 254-94-99</div>
+                    <button class="copy-btn" id="copyBtn">Скопировать</button>
+                    <div class="copied" id="copied">Скопировано</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Назад</a>
+    </div>
+
+    <div class="signature">ReedGnir</div>
+
+    <script>
+        const maxBtn = document.getElementById('maxBtn');
+        const maxBox = document.getElementById('maxBox');
+        const copyBtn = document.getElementById('copyBtn');
+        const copied = document.getElementById('copied');
+
+        maxBtn.addEventListener('click', () => {
+            maxBox.classList.toggle('show');
+        });
+
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText('+79002549499').then(() => {
+                copied.classList.add('show');
+                setTimeout(() => copied.classList.remove('show'), 2000);
+            });
+        });
+    </script>
+
+</body>
+</html>
